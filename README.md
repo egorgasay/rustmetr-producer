@@ -1,1 +1,1 @@
-# rustmetr-producer
+rustmetr producer
