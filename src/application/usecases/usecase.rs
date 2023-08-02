@@ -2,69 +2,32 @@ use async_trait::async_trait;
 
 use crate::{
     application::{
+        metrics::metrics::Metrics,
         repositories::repository_abstract::RepositoryAbstract,
-        usecases::interfaces::AbstractUseCase,
         utils::error_handling_utils::ErrorHandlingUtils,
     },
-    domain::{error::ApiError, entity::{Metric, MetricKind}},
-    errors::logic::*,
-    errors::storage::SetError,
-    errors::storage::IncError,
+    domain::entity::MetricKind,
 };
 use std::time::Duration;
-use rand::Rng;
 use std::thread;
+use rand::Rng;
 
 pub struct UseCase {
+    maxCount: u32,
     repository: Box<dyn RepositoryAbstract>,
-    metrics: [Metric; 28],
 }
 
 
 impl UseCase {
     pub fn new(st: Box<dyn RepositoryAbstract>) -> UseCase {
         UseCase {
+            maxCount: 28,
             repository: st,
-            metrics: [
-                Metric::new("Alloc", 0.0, MetricKind::Gauge),
-                Metric::new("BuckHashSys", 0.0, MetricKind::Gauge),
-                Metric::new("Frees", 0.0, MetricKind::Gauge),
-                Metric::new("GCCPUFraction", 0.0, MetricKind::Gauge),
-                Metric::new("GCSys", 0.0, MetricKind::Gauge),
-                Metric::new("HeapAlloc", 0.0, MetricKind::Gauge),
-                Metric::new("HeapIdle", 0.0, MetricKind::Gauge),
-                Metric::new("HeapInuse", 0.0, MetricKind::Gauge),
-                Metric::new("HeapObjects", 0.0, MetricKind::Gauge),
-                Metric::new("HeapReleased", 0.0, MetricKind::Gauge),
-                Metric::new("HeapSys", 0.0, MetricKind::Gauge),
-                Metric::new("LastGC", 0.0, MetricKind::Gauge),
-                Metric::new("Lookups", 0.0, MetricKind::Gauge),
-                Metric::new("MCacheInuse", 0.0, MetricKind::Gauge),
-                Metric::new("MCacheSys", 0.0, MetricKind::Gauge),
-                Metric::new("MSpanInuse", 0.0, MetricKind::Gauge),
-                Metric::new("MSpanSys", 0.0, MetricKind::Gauge),
-                Metric::new("Mallocs", 0.0, MetricKind::Gauge),
-                Metric::new("NextGC", 0.0, MetricKind::Gauge),
-                Metric::new("NumForcedGC", 0.0, MetricKind::Gauge),
-                Metric::new("NumGC", 0.0, MetricKind::Gauge),
-                Metric::new("OtherSys", 0.0, MetricKind::Gauge),
-                Metric::new("PauseTotalNs", 0.0, MetricKind::Gauge),
-                Metric::new("StackInuse", 0.0, MetricKind::Gauge),
-                Metric::new("StackSys", 0.0, MetricKind::Gauge),
-                Metric::new("Sys", 0.0, MetricKind::Gauge),
-                Metric::new("PollCount", 0.0, MetricKind::Counter),
-                Metric::new("RandomValue", 0.0, MetricKind::Gauge),
-            ],
         }
     }
 
-    // fn generate() -> Result<f32, _> {
-    //     // generate random f32 number
-    //     let mut rndgen = rand::thread_rng();
-    //     rndgen.gen()
-    // }
 
-    pub fn start(&self) -> Result<(), ErrorHandlingUtils> {
+    pub fn start(&mut self) -> Result<(), ErrorHandlingUtils> {
         loop {
             let start_time = std::time::Instant::now();
             loop {
@@ -80,13 +43,28 @@ impl UseCase {
         }
     }
 
+    fn generate_random_f32() -> f32 {
+        let mut rng = rand::thread_rng();
+        rng.gen::<f32>()
+    }
+
     fn send(&self) -> Result<(), ErrorHandlingUtils> {
         println!("sending metrics...");
         Ok(())
     }
 
-    pub fn produce(&self) -> Result<(), ErrorHandlingUtils> {
+    pub fn produce(&mut self) -> Result<(), ErrorHandlingUtils> {
         println!("producing metrics...");
+
+        for i in 0..self.maxCount {
+            let mut metric = self.repository.get_by_id(i as usize);
+            metric.value = UseCase::generate_random_f32();
+            if metric.kind == MetricKind::Counter {
+                self.repository.inc(&metric, i as usize);
+            } else if metric.kind == MetricKind::Gauge {
+                self.repository.set(&metric, i as usize);
+            }
+        }
         Ok(())
     }
 }

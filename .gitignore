@@ -10,3 +10,9 @@ Cargo.lock
 **/*.rs.bk
 
 *.db
+.idea/modules.xml
+.idea/rm-producer.iml
+.idea/vcs.xml
+.idea/.gitignore
+.env
+.env.test
