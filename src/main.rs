@@ -5,13 +5,14 @@ use rustmetric::application::metrics::metrics::Metrics;
 use rustmetric::application::usecases::usecase::UseCase;
 use rustmetric::application::repositories::map::map_storage::Storage;
 use rustmetric::domain::entity::{Metric, MetricKind};
+use tokio;
 
-#[actix_web::main]
+#[tokio::main]
 async fn main() -> std::io::Result<()> {
    let storage: Storage = Storage::new();
    let mut logic = UseCase::new(Box::new(storage));
 
-   logic.start();
+   logic.start().await;
 
    Ok(())
 }

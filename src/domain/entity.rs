@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 
 #[derive(Clone)]
 pub struct Metric {
@@ -10,6 +12,15 @@ pub struct Metric {
 pub enum MetricKind {
     Gauge,
     Counter,
+}
+
+impl Display for MetricKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            MetricKind::Gauge => write!(f, "gauge"),
+            MetricKind::Counter => write!(f, "counter"),
+        }
+    }
 }
 
 impl Metric {

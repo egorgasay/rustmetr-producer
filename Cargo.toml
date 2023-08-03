@@ -28,10 +28,12 @@ r2d2 = "~0.8"
 tokio = { version = "~1.18", features = ["full"] }
 # thiserror = "~1.0"
 derive_more = "~0.99"
-reqwest={version="0.11", features = ["json"]}
+reqwest={version="0.11.3", features = ["blocking"]}
 rand = "~0.8"
+http = "0.2.4"
 
 [dev-dependencies]
 cargo-tarpaulin = "~0.20"
 uuid = { version = "~1.0", features = ["serde", "v4"] }
 mockall = "~0.11"
+tokio = { version = "1", features = ["full"] }

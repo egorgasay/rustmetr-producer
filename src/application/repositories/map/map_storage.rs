@@ -49,7 +49,7 @@ impl Storage {
 
 impl RepositoryAbstract for Storage {
     fn set(&self, metric: &Metric, id: usize) {
-        println!("set {} {}", metric.name, metric.value);
+        // println!("set {} {}", metric.name, metric.value);
         self.data.lock().unwrap()[id] = metric.clone();
     }
 
@@ -62,7 +62,7 @@ impl RepositoryAbstract for Storage {
     fn inc(&self, metric: &Metric, id: usize) {
         self.data.lock().unwrap()[id].value += metric.value;
 
-        println!("inc {} {}", metric.name, self.data.lock().unwrap()[id].value);
+        // println!("inc {} {}", metric.name, self.data.lock().unwrap()[id].value);
     }
 
     fn get_by_id(&self, id: usize) -> Metric {
