@@ -4,7 +4,7 @@ use std::fmt::Display;
 #[derive(Clone)]
 pub struct Metric {
     pub name: String,
-    pub value: f32,
+    pub value: f64,
     pub kind: MetricKind,
 }
 
@@ -24,7 +24,7 @@ impl Display for MetricKind {
 }
 
 impl Metric {
-    pub fn new(name: &str, value: f32, kind: MetricKind) -> Metric {
+    pub fn new(name: &str, value: f64, kind: MetricKind) -> Metric {
         Metric { name: name.to_string(), value, kind }
     }
 

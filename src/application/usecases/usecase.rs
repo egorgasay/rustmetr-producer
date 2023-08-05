@@ -2,7 +2,6 @@ use async_trait::async_trait;
 
 use crate::{
     application::{
-        metrics::metrics::Metrics,
         repositories::repository_abstract::RepositoryAbstract,
         utils::error_handling_utils::ErrorHandlingUtils,
     },
@@ -15,7 +14,7 @@ use reqwest;
 use tokio::runtime::Runtime;
 
 pub struct UseCase {
-    maxCount: u32,
+    maxCount: u64,
     repository: Box<dyn RepositoryAbstract>,
 }
 
@@ -45,19 +44,19 @@ impl UseCase {
         }
     }
 
-    fn generate_random_f32() -> f32 {
+    fn generate_random_f64() -> f64 {
         let mut rng = rand::thread_rng();
         let min = 1.0;
         let max = 100000.0;
         rng.gen_range(min..max)
     }
 
-    fn generate_random_i32() -> i32 {
+    fn generate_random_i64() -> i64 {
         let mut rng = rand::thread_rng();
-        rng.gen::<i32>()
+        rng.gen::<i64>()
     }
 
-    async fn send(&self) -> Result<(), ErrorHandlingUtils> {
+    async fn send(&self) {
         println!("sending metric...");
     
         let client = reqwest::Client::new();
@@ -78,22 +77,24 @@ impl UseCase {
         }
     
         println!("done!");
-        Ok(())
     }
 
-    pub fn produce(&mut self) -> Result<(), ErrorHandlingUtils> {
+    pub fn produce(&mut self) {
         println!("producing metrics...");
 
         for i in 0..self.maxCount {
             let mut metric = self.repository.get_by_id(i as usize);
             if metric.kind == MetricKind::Counter {
-                metric.value += UseCase::generate_random_i32() as f32;
+                if metric.name == "PollCount" {
+                    metric.value += 1 as f64;
+                } else {
+                    metric.value += UseCase::generate_random_i64() as f64;
+                }
                 self.repository.inc(&metric, i as usize);
             } else if metric.kind == MetricKind::Gauge {
-                metric.value = UseCase::generate_random_f32();
+                metric.value = UseCase::generate_random_f64();
                 self.repository.set(&metric, i as usize);
             }
         }
-        Ok(())
     }
 }
