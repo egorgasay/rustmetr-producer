@@ -14,7 +14,8 @@ use reqwest;
 use tokio::runtime::Runtime;
 
 pub struct UseCase {
-    maxCount: u64,
+    max_counter: u64,
+    max_gauge: u64,
     repository: Box<dyn RepositoryAbstract>,
 }
 
@@ -22,13 +23,13 @@ pub struct UseCase {
 impl UseCase {
     pub fn new(st: Box<dyn RepositoryAbstract>) -> UseCase {
         UseCase {
-            maxCount: 28,
+            max_counter: 1,
+            max_gauge: 27,
             repository: st,
         }
     }
 
-
-    pub async fn start(&mut self) -> Result<(), ErrorHandlingUtils> {
+    pub async fn start(&self) -> Result<(), ErrorHandlingUtils> {
         loop {
             let start_time = std::time::Instant::now();
             loop {
@@ -61,7 +62,7 @@ impl UseCase {
     
         let client = reqwest::Client::new();
     
-        for i in 0..self.maxCount {
+        for i in 0..self.max_counter {
             let metric = self.repository.get_by_id(i as usize);
     
             let url = format!("http://127.0.0.1:8080/update/{0}/{1}/{2}", metric.kind, metric.name, metric.value);
@@ -79,22 +80,19 @@ impl UseCase {
         println!("done!");
     }
 
-    pub fn produce(&mut self) {
+    pub fn produce(&self) {
         println!("producing metrics...");
 
-        for i in 0..self.maxCount {
-            let mut metric = self.repository.get_by_id(i as usize);
-            if metric.kind == MetricKind::Counter {
-                if metric.name == "PollCount" {
-                    metric.value += 1 as f64;
-                } else {
-                    metric.value += UseCase::generate_random_i64() as f64;
-                }
-                self.repository.inc(&metric, i as usize);
-            } else if metric.kind == MetricKind::Gauge {
-                metric.value = UseCase::generate_random_f64();
-                self.repository.set(&metric, i as usize);
-            }
+        for i in 0..self.max_counter {
+            let mut metric = self.repository.get_counter_by_id(i as usize);
+            metric.value += 1f64;
+            self.repository.inc_counter(&metric, i as usize);
+        }
+
+        for i in 0..self.max_gauge {
+            let mut metric = self.repository.get_gauge_by_id(i as usize);
+            metric.value = UseCase::generate_random_f64();
+            self.repository.set_gauge(&metric, i as usize);
         }
     }
 }
