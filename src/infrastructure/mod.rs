@@ -22,19 +22,19 @@
 //     env_logger::try_init();
 
 //     let http_connection = HttpConnection {};
-//     let repo = &Storage::new();
+//     let repo = &Storage::default();
 
-//     let static_reference: &'static Storage = unsafe { std::mem::transmute(Box::leak(Box::new(repo))) };
-//     let logic = MetricService::new(static_reference);
-//     let data = web::Data::new(AppState {
+//     let static_reference: &'static Storage = unsafe { std::mem::transmute(Box::leak(Box::default(repo))) };
+//     let logic = MetricService::default(static_reference);
+//     let data = web::Data::default(AppState {
 //         app_name: String::from("Animal Facts API"),
 //         logic: logic,
 //     });
 
 //     let port = listener.local_addr().unwrap().port();
 
-//     let server = HttpServer::new(move || {
-//         App::new().app_data(data.clone()).service(get_metric)
+//     let server = HttpServer::default(move || {
+//         App::default().app_data(data.clone()).service(get_metric)
 //     })
 //     .bind("127.0.0.1:8888")?
 //     .run();

@@ -1,3 +1,4 @@
+use std::f32::consts::E;
 use crate::{
     application::{
         repositories::repository_abstract::RepositoryAbstract,
@@ -69,7 +70,7 @@ impl UseCase {
                MetricKind::Gauge => self.repository.get_gauge_by_id(i as usize),
             };
 
-            let url = format!("http://127.0.0.1:8080/update/{0}/{1}/{2}", kind, metric.name, metric.value);
+            let url = format!("http://localhost:8080/update/{0}/{1}/{2}", kind, metric.name, metric.value);
 
             let res = client.post(&url).send().await;
 
@@ -90,7 +91,13 @@ impl UseCase {
         }
 
         for i in 0..self.max_gauge {
-            let mut metric = self.repository.get_gauge_by_id(i as usize);
+            let mut metric = match self.repository.get_gauge_by_id(i as usize) {
+                Ok(m) => m,
+                Err(e) => {
+                    println!("produce: {}", e);
+                    continue
+                },
+            };
             metric.value = UseCase::generate_random_f64();
             self.repository.set_gauge(&metric, i as usize);
         }

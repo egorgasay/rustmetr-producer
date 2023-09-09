@@ -3,14 +3,15 @@ use crate::{
     domain::entity::Metric,
 };
 use std::sync::RwLock;
+use crate::application::repositories::error::RepositoryError;
 
 pub struct Storage {
     pub counter: RwLock<Vec<Metric>>,
     pub gauge: RwLock<Vec<Metric>>,
 }
 
-impl Storage {
-    pub fn new() -> Self {
+impl Default for Storage {
+    fn default() -> Self {
         let gauge = [
             Metric::new_deafault_value("Alloc"),
             Metric::new_deafault_value("BuckHashSys"),
@@ -63,17 +64,31 @@ impl RepositoryAbstract for Storage {
         println!("counter: {}", self.counter.write().unwrap()[id].value);
     }
 
-    fn get_counter_by_id(&self, id: usize) -> Metric {
-        self.counter.read().unwrap()[id].clone()
-    } // todo: refactor
-    fn get_gauge_by_id(&self, id: usize) -> Metric {
-        self.gauge.read().unwrap()[id].clone()
-    } // todo: refactor
+    fn get_counter_by_id(&self, id: usize) -> Result<Metric, RepositoryError> {
+        match self.counter.read() {
+            Ok(data) => {
+                Ok(data[id].clone())
+            }
+            Err(err) => {
+                println!("get_counter_by_id: {}", err.to_string());
+                Err(RepositoryError::NotFound)
+            }
+        }
+    }
 
-    fn drop_all_counter(&mut self) { // todo: refactor
-        // for (_, value) in self.counter.lock().iter_mut().collect<Vec<_>>() {
-        //     value = 0;
-        // }
+    fn get_gauge_by_id(&self, id: usize) -> Result<Metric, RepositoryError> {
+        match self.gauge.read() {
+            Ok(data) => {
+                Ok(data[id].clone())
+            }
+            Err(err) => {
+                println!("get_gauge_by_id: {}", err.to_string());
+                Err(RepositoryError::NotFound)
+            }
+        }
+    }
+
+    fn drop_all_counter(&mut self) {
 
         match self.counter.write(){
             Ok(mut data) => {
