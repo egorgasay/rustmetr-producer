@@ -12,6 +12,7 @@ use std::thread;
 use rand::Rng;
 use reqwest;
 use tokio::runtime::Runtime;
+use crate::domain::entity::Metric;
 
 pub struct UseCase {
     max_counter: u64,
@@ -60,8 +61,6 @@ impl UseCase {
     async fn send(&self) { // TODO: CREATE NEW SERVICE
         println!("sending metric...");
     
-        let client = reqwest::Client::new();
-    
         for i in 0..self.max_counter { // TODO: REFACTOR
             let metric = self.repository.get_counter_by_id(i as usize);
     
@@ -76,8 +75,29 @@ impl UseCase {
                 }
             }
         }
+
+
     
         println!("done!");
+    }
+
+    async fn do_req(&self, max: i64, kind: MetricKind) {
+        let client = reqwest::Client::new();
+
+        for i in 0..max {
+            let metric = self.repository.get_counter_by_id(i as usize);
+
+            let url = format!("http://127.0.0.1:8080/update/{0}/{1}/{2}", kind, metric.name, metric.value);
+
+            let res = client.post(&url).send().await;
+
+            match res {
+                Ok(_) => {},
+                Err(e) => {
+                    println!("error: {}", e);
+                }
+            }
+        }
     }
 
     pub fn produce(&self) {
