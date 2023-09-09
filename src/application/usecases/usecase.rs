@@ -60,32 +60,21 @@ impl UseCase {
 
     async fn send(&self) { // TODO: CREATE NEW SERVICE
         println!("sending metric...");
-    
-        for i in 0..self.max_counter { // TODO: REFACTOR
-            let metric = self.repository.get_counter_by_id(i as usize);
-    
-            let url = format!("http://127.0.0.1:8080/update/{0}/{1}/{2}", metric.kind, metric.name, metric.value);
-    
-            let res = client.post(&url).send().await;
-    
-            match res {
-                Ok(_) => {},
-                Err(e) => {
-                    println!("error: {}", e);
-                }
-            }
-        }
 
-
+        self.do_req(self.max_counter, MetricKind::Counter).await;
+        self.do_req(self.max_gauge, MetricKind::Gauge).await;
     
         println!("done!");
     }
 
-    async fn do_req(&self, max: i64, kind: MetricKind) {
+    async fn do_req(&self, max: u64, kind: MetricKind) {
         let client = reqwest::Client::new();
 
         for i in 0..max {
-            let metric = self.repository.get_counter_by_id(i as usize);
+            let metric = match kind {
+               MetricKind::Counter => self.repository.get_counter_by_id(i as usize),
+               MetricKind::Gauge => self.repository.get_gauge_by_id(i as usize),
+            };
 
             let url = format!("http://127.0.0.1:8080/update/{0}/{1}/{2}", kind, metric.name, metric.value);
 

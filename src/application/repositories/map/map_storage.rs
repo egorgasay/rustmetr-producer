@@ -54,18 +54,12 @@ impl Storage {
 
 impl RepositoryAbstract for Storage {
     fn set_gauge(&self, metric: &Metric, id: usize) {
-        self.gage.lock().unwrap()[id] = metric.clone();
+        self.gauge.lock().unwrap()[id] = metric.clone();
     }
 
     fn inc_counter(&self, metric: &Metric, id: usize) {
         self.counter.lock().unwrap()[id].value += metric.value;
     }
-
-    // fn get_all(&self) -> Vec<Metric> {
-    //     println!("getting all metrics");
-    //
-    //     self.data.lock().unwrap().as_slice().to_vec()
-    // }
 
     fn get_counter_by_id(&self, id: usize) -> Metric {
         self.counter.lock().unwrap()[id].clone()
