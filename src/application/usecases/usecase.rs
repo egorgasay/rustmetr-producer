@@ -57,13 +57,13 @@ impl UseCase {
         rng.gen::<i64>()
     }
 
-    async fn send(&self) {
+    async fn send(&self) { // TODO: CREATE NEW SERVICE
         println!("sending metric...");
     
         let client = reqwest::Client::new();
     
-        for i in 0..self.max_counter {
-            let metric = self.repository.get_by_id(i as usize);
+        for i in 0..self.max_counter { // TODO: REFACTOR
+            let metric = self.repository.get_counter_by_id(i as usize);
     
             let url = format!("http://127.0.0.1:8080/update/{0}/{1}/{2}", metric.kind, metric.name, metric.value);
     

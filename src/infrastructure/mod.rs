@@ -11,7 +11,7 @@
 // use actix_web::{dev::Server, middleware::Logger};
 // use actix_web::{web, App, HttpServer};
 // use crate::application::{
-//     usecases::usecase::UseCase,
+//     service::usecase::MetricService,
 //     repositories::map::map_storage::Storage
 // };
 
@@ -25,7 +25,7 @@
 //     let repo = &Storage::new();
 
 //     let static_reference: &'static Storage = unsafe { std::mem::transmute(Box::leak(Box::new(repo))) };
-//     let logic = UseCase::new(static_reference);
+//     let logic = MetricService::new(static_reference);
 //     let data = web::Data::new(AppState {
 //         app_name: String::from("Animal Facts API"),
 //         logic: logic,
