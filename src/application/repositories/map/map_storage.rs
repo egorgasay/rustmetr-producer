@@ -57,8 +57,8 @@ impl RepositoryAbstract for Storage {
         self.gauge.lock().unwrap()[id] = metric.clone();
     }
 
-    fn inc_counter(&self, metric: &Metric, id: usize) {
-        self.counter.lock().unwrap()[id].value += metric.value;
+    fn set_counter(&self, metric: &Metric, id: usize) {
+        self.counter.lock().unwrap()[id].value = metric.value;
     }
 
     fn get_counter_by_id(&self, id: usize) -> Metric {

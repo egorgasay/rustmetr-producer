@@ -1,5 +1,3 @@
-use async_trait::async_trait;
-
 use crate::{
     application::{
         repositories::repository_abstract::RepositoryAbstract,
@@ -11,8 +9,6 @@ use std::time::Duration;
 use std::thread;
 use rand::Rng;
 use reqwest;
-use tokio::runtime::Runtime;
-use crate::domain::entity::Metric;
 
 pub struct UseCase {
     max_counter: u64,
@@ -53,11 +49,6 @@ impl UseCase {
         rng.gen_range(min..max)
     }
 
-    fn generate_random_i64() -> i64 {
-        let mut rng = rand::thread_rng();
-        rng.gen::<i64>()
-    }
-
     async fn send(&self) { // TODO: CREATE NEW SERVICE
         println!("sending metric...");
 
@@ -95,7 +86,7 @@ impl UseCase {
         for i in 0..self.max_counter {
             let mut metric = self.repository.get_counter_by_id(i as usize);
             metric.value += 1f64;
-            self.repository.inc_counter(&metric, i as usize);
+            self.repository.set_counter(&metric, i as usize);
         }
 
         for i in 0..self.max_gauge {

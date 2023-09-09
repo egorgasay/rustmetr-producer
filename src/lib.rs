@@ -1,6 +1,3 @@
-use actix_web::dev::Server;
-use std::net::TcpListener;
-
 pub mod application;
 pub mod domain;
 pub mod infrastructure;

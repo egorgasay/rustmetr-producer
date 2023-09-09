@@ -5,7 +5,7 @@ use tokio;
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
    let storage: Storage = Storage::new();
-   let mut logic = UseCase::new(Box::new(storage));
+   let logic = UseCase::new(Box::new(storage));
 
    let _ = logic.start().await;
 
