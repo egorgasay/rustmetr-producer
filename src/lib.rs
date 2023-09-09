@@ -3,7 +3,6 @@ use std::net::TcpListener;
 
 pub mod application;
 pub mod domain;
-pub mod errors;
 pub mod infrastructure;
 
 extern crate dotenv;

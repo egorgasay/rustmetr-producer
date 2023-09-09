@@ -5,7 +5,6 @@ use std::fmt::Display;
 pub struct Metric {
     pub name: String,
     pub value: f64,
-    pub kind: MetricKind,
 }
 
 #[derive(PartialEq, Clone)]
@@ -24,11 +23,11 @@ impl Display for MetricKind {
 }
 
 impl Metric {
-    pub fn new(name: &str, value: f64, kind: MetricKind) -> Metric {
-        Metric { name: name.to_string(), value, kind }
+    pub fn new(name: &str, value: f64) -> Metric {
+        Metric { name: name.to_string(), value }
     }
 
-    pub fn new_deafault_value(name: &str, kind: MetricKind) -> Metric {
-        Metric { name: name.to_string(), value: 0.0, kind }
+    pub fn new_deafault_value(name: &str) -> Metric {
+        Metric { name: name.to_string(), value: 0.0 }
     }
 }
