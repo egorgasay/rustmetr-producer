@@ -2,11 +2,11 @@ use crate::{
     application::repositories::repository_abstract::RepositoryAbstract,
     domain::entity::Metric,
 };
-use std::sync::Mutex;
+use std::sync::RwLock;
 
 pub struct Storage {
-    pub counter: Mutex<Vec<Metric>>,
-    pub gauge: Mutex<Vec<Metric>>,
+    pub counter: RwLock<Vec<Metric>>,
+    pub gauge: RwLock<Vec<Metric>>,
 }
 
 impl Storage {
@@ -46,26 +46,45 @@ impl Storage {
         ];
 
         Storage {
-            counter: Mutex::new(counter.to_vec()),
-            gauge: Mutex::new(gauge.to_vec()),
+            counter: RwLock::new(counter.to_vec()),
+            gauge: RwLock::new(gauge.to_vec()),
         }
     }
 }
 
 impl RepositoryAbstract for Storage {
     fn set_gauge(&self, metric: &Metric, id: usize) {
-        self.gauge.lock().unwrap()[id] = metric.clone();
+        self.gauge.write().unwrap()[id] = metric.clone(); // todo: refactor
     }
 
-    fn set_counter(&self, metric: &Metric, id: usize) {
-        self.counter.lock().unwrap()[id].value = metric.value;
+    fn inc_counter(&self, id: usize) {
+        self.counter.write().unwrap()[id].value += 1f64; // todo: refactor
+
+        println!("counter: {}", self.counter.write().unwrap()[id].value);
     }
 
     fn get_counter_by_id(&self, id: usize) -> Metric {
-        self.counter.lock().unwrap()[id].clone()
-    }
-
+        self.counter.read().unwrap()[id].clone()
+    } // todo: refactor
     fn get_gauge_by_id(&self, id: usize) -> Metric {
-        self.gauge.lock().unwrap()[id].clone()
+        self.gauge.read().unwrap()[id].clone()
+    } // todo: refactor
+
+    fn drop_all_counter(&mut self) { // todo: refactor
+        // for (_, value) in self.counter.lock().iter_mut().collect<Vec<_>>() {
+        //     value = 0;
+        // }
+
+        match self.counter.write(){
+            Ok(mut data) => {
+                for metric in data.iter_mut() {
+                    metric.value = 0f64;
+                    //*metric = Metric::new_deafault_value(metric.name.as_str());
+                }
+            }
+            Err(err) => {
+                println!("clear counter: {}", err.to_string());
+            }
+        }
     }
 }

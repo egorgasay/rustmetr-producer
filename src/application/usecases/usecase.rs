@@ -26,7 +26,7 @@ impl UseCase {
         }
     }
 
-    pub async fn start(&self) -> Result<(), ErrorHandlingUtils> {
+    pub async fn start(&mut self) -> Result<(), ErrorHandlingUtils> {
         loop {
             let start_time = std::time::Instant::now();
             loop {
@@ -49,10 +49,12 @@ impl UseCase {
         rng.gen_range(min..max)
     }
 
-    async fn send(&self) { // TODO: CREATE NEW SERVICE
+    async fn send(&mut self) { // TODO: CREATE NEW SERVICE
         println!("sending metric...");
 
         self.do_req(self.max_counter, MetricKind::Counter).await;
+        self.repository.drop_all_counter();
+
         self.do_req(self.max_gauge, MetricKind::Gauge).await;
     
         println!("done!");
@@ -84,9 +86,7 @@ impl UseCase {
         println!("producing metrics...");
 
         for i in 0..self.max_counter {
-            let mut metric = self.repository.get_counter_by_id(i as usize);
-            metric.value += 1f64;
-            self.repository.set_counter(&metric, i as usize);
+            self.repository.inc_counter(i as usize);
         }
 
         for i in 0..self.max_gauge {
