@@ -68,7 +68,7 @@ impl UseCase {
             let metric = match kind {
                MetricKind::Counter => self.repository.get_counter_by_id(i as usize),
                MetricKind::Gauge => self.repository.get_gauge_by_id(i as usize),
-            };
+            }.expect("metric not found");
 
             let url = format!("http://localhost:8080/update/{0}/{1}/{2}", kind, metric.name, metric.value);
 
